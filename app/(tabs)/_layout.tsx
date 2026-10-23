@@ -58,7 +58,7 @@ export default function TabLayout() {
       <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarButton: HapticTab,
+        tabBarButton: HapticTab as never,
         tabBarActiveTintColor: customColors.primaryButton,
         tabBarInactiveTintColor: theme.icon,
         tabBarShowLabel: false,
@@ -91,7 +91,7 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconContainer, focused && { backgroundColor: `${customColors.primaryButton}15` }]}>
-              <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color} />
+              <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color as string} />
             </View>
           ),
         }}
@@ -101,7 +101,7 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconContainer, focused && { backgroundColor: `${customColors.primaryButton}15` }]}>
-              <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} color={color} />
+              <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} color={color as string} />
             </View>
           ),
         }}
@@ -111,7 +111,7 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconContainer, focused && { backgroundColor: `${customColors.primaryButton}15` }]}>
-              <Ionicons name={focused ? 'barbell' : 'barbell-outline'} size={24} color={color} />
+              <Ionicons name={focused ? 'barbell' : 'barbell-outline'} size={24} color={color as string} />
             </View>
           ),
         }}
@@ -121,7 +121,7 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconContainer, focused && { backgroundColor: `${customColors.primaryButton}15` }]}>
-              <Ionicons name={focused ? 'stats-chart' : 'stats-chart-outline'} size={24} color={color} />
+              <Ionicons name={focused ? 'stats-chart' : 'stats-chart-outline'} size={24} color={color as string} />
             </View>
           ),
         }}
@@ -131,7 +131,7 @@ export default function TabLayout() {
         options={{
           tabBarIcon: ({ color, focused }) => (
             <View style={[styles.iconContainer, focused && { backgroundColor: `${customColors.primaryButton}15` }]}>
-              <Ionicons name={focused ? 'settings' : 'settings-outline'} size={24} color={color} />
+              <Ionicons name={focused ? 'settings' : 'settings-outline'} size={24} color={color as string} />
             </View>
           ),
         }}

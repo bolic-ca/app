@@ -112,7 +112,7 @@ export default function SetEditor({
   const [rpeInput, setRpeInput] = useState('');
   const [quality, setQuality] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
   // Reset form when modal opens/closes or initial data changes
   useEffect(() => {
