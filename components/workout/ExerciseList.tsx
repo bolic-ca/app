@@ -9,7 +9,7 @@
 
 import React, { useCallback, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import type { TrainingDay, TrainingExercise } from '@/types/training';
 import type { WorkoutSession, SessionSet, SessionExercisePlan } from '@/services/storage/session-storage';

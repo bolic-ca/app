@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, useColorScheme, ActivityIndicator, 
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from 'expo-router';
 import { useThemeCustomization } from '@/contexts/ThemeContext';
 import { useStats } from '@/hooks/useStats';
 import { useWorkoutSession } from '@/contexts/WorkoutSessionContext';

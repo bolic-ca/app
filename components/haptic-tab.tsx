@@ -1,13 +1,12 @@
-import { PlatformPressable } from '@react-navigation/elements';
 import * as Haptics from 'expo-haptics';
+import type { Tabs } from 'expo-router';
+import { PlatformPressable } from 'expo-router/react-navigation';
 import type { ComponentProps } from 'react';
 
-// expo-router (SDK 58) ships its own copy of the react-navigation types whose
-// color types differ slightly from @react-navigation/elements, so we accept the
-// pressable props directly and let tabBarButton's loose signature handle it.
-type HapticTabProps = ComponentProps<typeof PlatformPressable>;
+type ScreenOptions = Exclude<ComponentProps<typeof Tabs>['screenOptions'], Function | undefined>;
+type BottomTabBarButtonProps = Parameters<NonNullable<ScreenOptions['tabBarButton']>>[0];
 
-export function HapticTab(props: HapticTabProps) {
+export function HapticTab(props: BottomTabBarButtonProps) {
   return (
     <PlatformPressable
       {...props}
