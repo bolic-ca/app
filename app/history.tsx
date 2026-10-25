@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, useColorScheme, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router, Stack } from 'expo-router';
@@ -24,7 +24,11 @@ export default function HistoryPage() {
 
   const [currentDate, setCurrentDate] = useState(new Date());
   const [sessions, setSessions] = useState<StorageItem<WorkoutSession>[]>([]);
-  const [loading, setLoading] = useState(true);
+  const requestKey = userId
+    ? `${userId}:${currentDate.getFullYear()}:${currentDate.getMonth()}`
+    : null;
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const loading = requestKey === null || loadedKey !== requestKey;
 
   // Athletic color palette
   const hexToRgba = (hex: string, alpha: number) => {
@@ -45,31 +49,31 @@ export default function HistoryPage() {
     accentGlow: isDark ? hexToRgba(accent, 0.15) : hexToRgba(accent, 0.08),
   };
 
-  const fetchSessions = useCallback(async () => {
-    if (!userId) return;
-    
-    setLoading(true);
-    try {
-      const year = currentDate.getFullYear();
-      const month = currentDate.getMonth() + 1;
-      const monthSessions = await getSessionsByMonth(userId, year, month);
-      
-      // Sort by date descending
-      const sorted = monthSessions.sort((a, b) => 
-        new Date(b.data.startedAt).getTime() - new Date(a.data.startedAt).getTime()
-      );
-      
-      setSessions(sorted);
-    } catch (error) {
-      console.error('Error fetching sessions:', error);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId, currentDate]);
-
   useEffect(() => {
-    fetchSessions();
-  }, [fetchSessions]);
+    if (!userId || !requestKey) return;
+
+    let cancelled = false;
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth() + 1;
+
+    getSessionsByMonth(userId, year, month)
+      .then(monthSessions => {
+        if (cancelled) return;
+        const sorted = monthSessions.sort((a, b) =>
+          new Date(b.data.startedAt).getTime() - new Date(a.data.startedAt).getTime()
+        );
+        setSessions(sorted);
+        setLoadedKey(requestKey);
+      })
+      .catch(error => {
+        console.error('Error fetching sessions:', error);
+        if (!cancelled) setLoadedKey(requestKey);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, currentDate, requestKey]);
 
   const handlePrevMonth = () => {
     setCurrentDate(prev => {

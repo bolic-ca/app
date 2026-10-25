@@ -7,7 +7,7 @@
  * fall back to trainingDay.exercises + exerciseOverrides.
  */
 
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, useColorScheme } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -55,7 +55,9 @@ export default function ExerciseList({
   // an exercise in the exercise-form modal) so edits apply without reopening
   // the session. Ref keeps the focus effect stable to avoid refetch loops.
   const refetchRef = useRef(refetch);
-  refetchRef.current = refetch;
+  useEffect(() => {
+    refetchRef.current = refetch;
+  }, [refetch]);
   useFocusEffect(
     useCallback(() => {
       refetchRef.current();

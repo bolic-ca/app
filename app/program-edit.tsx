@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -21,13 +21,20 @@ export default function ProgramEditScreen() {
   const colorScheme = useColorScheme();
   const { customColors } = useThemeCustomization();
   const { programId } = useLocalSearchParams<{ programId: string }>();
-  const { programs, updateProgram } = usePrograms();
+  const { programs, updateProgram, loading: programsLoading } = usePrograms();
 
-  const [program, setProgram] = useState<Program | null>(null);
+  const foundProgram: Program | null =
+    programs.find((p: Program) => p.id === programId) ?? null;
+  const [initializedId, setInitializedId] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  if (foundProgram && initializedId !== foundProgram.id) {
+    setInitializedId(foundProgram.id);
+    setName(foundProgram.name);
+    setDescription(foundProgram.description || '');
+  }
 
   const isDark = colorScheme === 'dark';
   const hexToRgba = (hex: string, alpha: number) => {
@@ -49,18 +56,8 @@ export default function ProgramEditScreen() {
     inputBg: isDark ? '#1F1F23' : '#F4F4F5',
   };
 
-  useEffect(() => {
-    const foundProgram = programs.find(p => p.id === programId);
-    if (foundProgram) {
-      setProgram(foundProgram);
-      setName(foundProgram.name);
-      setDescription(foundProgram.description || '');
-    }
-    setLoading(false);
-  }, [programId, programs]);
-
   const handleSave = async () => {
-    if (!program || !name.trim()) {
+    if (!foundProgram || !name.trim()) {
       Alert.alert('Error', 'Program name is required');
       return;
     }
@@ -68,7 +65,7 @@ export default function ProgramEditScreen() {
     try {
       setSaving(true);
       const updatedProgram: Program = {
-        ...program,
+        ...foundProgram,
         name: name.trim(),
         description: description.trim(),
         lastModified: new Date().toISOString(),
@@ -88,14 +85,14 @@ export default function ProgramEditScreen() {
     router.push({
       pathname: '/training-day-detail',
       params: {
-        programId: program?.id,
+        programId: foundProgram?.id,
         trainingDayId: day.id,
         mode: 'edit'
       }
     });
   };
 
-  if (loading) {
+  if (programsLoading && !foundProgram) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: palette.bg }]} edges={['top']}>
         <View style={styles.loadingContainer}>
@@ -105,7 +102,7 @@ export default function ProgramEditScreen() {
     );
   }
 
-  if (!program) {
+  if (!foundProgram) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: palette.bg }]} edges={['top']}>
         <View style={styles.errorContainer}>
@@ -178,12 +175,12 @@ export default function ProgramEditScreen() {
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: palette.text }]}>Training Days</Text>
           <Text style={[styles.sectionSubtitle, { color: palette.textMuted }]}>
-            {program.trainingDays?.length || 0} training days
+            {foundProgram.trainingDays?.length || 0} training days
           </Text>
 
-          {program.trainingDays && program.trainingDays.length > 0 ? (
+          {foundProgram.trainingDays && foundProgram.trainingDays.length > 0 ? (
             <View style={styles.daysList}>
-              {program.trainingDays.map((day, index) => (
+              {foundProgram.trainingDays.map((day, index) => (
                 <TouchableOpacity
                   key={day.id}
                   style={[styles.dayCard, { backgroundColor: palette.cardBg, borderColor: palette.cardBorder }]}

@@ -3,7 +3,7 @@
  * Displays an exercise in the workout with set logging functionality
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity, Pressable, StyleSheet, useColorScheme, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
@@ -53,7 +53,9 @@ export default function ExerciseCard({
   const theme = Colors[colorScheme ?? 'light'];
   const { customColors, preferences } = useThemeCustomization();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [defaultWeight, setDefaultWeight] = useState<number | undefined>();
+  const defaultWeight = sessionExercise?.sets && sessionExercise.sets.length > 0
+    ? sessionExercise.sets[sessionExercise.sets.length - 1].weight
+    : previousPerformance?.weight;
 
   // Swap modal state
   const [swapModalVisible, setSwapModalVisible] = useState(false);
@@ -76,16 +78,6 @@ export default function ExerciseCard({
     sessionExercise &&
     exercise.targetNumberOfSets &&
     (sessionExercise.sets?.length ?? 0) >= exercise.targetNumberOfSets;
-
-  // Update default weight from last set or previous performance
-  useEffect(() => {
-    if (sessionExercise?.sets && sessionExercise.sets.length > 0) {
-      const lastSet = sessionExercise.sets[sessionExercise.sets.length - 1];
-      setDefaultWeight(lastSet.weight);
-    } else if (previousPerformance) {
-      setDefaultWeight(previousPerformance.weight);
-    }
-  }, [sessionExercise, previousPerformance]);
 
   // Build target suggestions text
   const targetSuggestions = [];

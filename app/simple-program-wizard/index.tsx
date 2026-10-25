@@ -22,10 +22,11 @@ export default function SimpleProgramWizardIndex() {
   const isDark = colorScheme === 'dark';
   const { customColors } = useThemeCustomization();
   const { editProgramId } = useLocalSearchParams<{ editProgramId?: string }>();
-  const { state, setProgramInfo, canProceedFromStep1, hasDraft, discardDraft, isEditMode, loadProgramForEdit } = useSimpleProgramWizard();
+  const { state, setProgramInfo, canProceedFromStep1, hasDraft, discardDraft, isEditMode, loadProgramForEdit, isLoading } = useSimpleProgramWizard();
 
-  const [showDraftBanner, setShowDraftBanner] = useState(false);
-  const [loadingEdit, setLoadingEdit] = useState(false);
+  const draftAvailable = hasDraft && Boolean(state.name) && !isEditMode;
+  const [draftBannerDismissed, setDraftBannerDismissed] = useState(false);
+  const showDraftBanner = draftAvailable && !draftBannerDismissed;
 
   // Athletic color palette
   const hexToRgba = (hex: string, alpha: number) => {
@@ -49,20 +50,16 @@ export default function SimpleProgramWizardIndex() {
   // Load program for editing if editProgramId is provided
   useEffect(() => {
     if (editProgramId && !state.editProgramId) {
-      setLoadingEdit(true);
-      loadProgramForEdit(editProgramId).finally(() => setLoadingEdit(false));
+      void loadProgramForEdit(editProgramId);
     }
   }, [editProgramId, state.editProgramId, loadProgramForEdit]);
 
-  // Show draft restored banner
+  // Hide the draft banner a few seconds after it appears
   useEffect(() => {
-    if (hasDraft && state.name && !isEditMode) {
-      setShowDraftBanner(true);
-      // Auto-hide after 5 seconds
-      const timer = setTimeout(() => setShowDraftBanner(false), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [hasDraft, state.name, isEditMode]);
+    if (!draftAvailable) return;
+    const timer = setTimeout(() => setDraftBannerDismissed(true), 5000);
+    return () => clearTimeout(timer);
+  }, [draftAvailable]);
 
   const handleClose = () => {
     // In edit mode, just go back without draft dialog
@@ -119,7 +116,7 @@ export default function SimpleProgramWizardIndex() {
   };
 
   // Show loading state
-  if (loadingEdit) {
+  if (isLoading) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: palette.bg }]} edges={['top']}>
         <View style={styles.loadingContainer}>

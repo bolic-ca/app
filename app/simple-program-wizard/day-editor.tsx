@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TextInput, TouchableOpacity, useColorScheme, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -18,6 +18,13 @@ export default function DayEditorScreen() {
 
   const [name, setName] = useState(day?.name || '');
   const [description, setDescription] = useState(day?.description || '');
+  const dayKey = day ? `${dayIndex ?? ''}:${day.name}:${day.description}` : null;
+  const [syncedDayKey, setSyncedDayKey] = useState(dayKey);
+  if (day && dayKey !== syncedDayKey) {
+    setSyncedDayKey(dayKey);
+    setName(day.name);
+    setDescription(day.description || '');
+  }
 
   const isDark = colorScheme === 'dark';
 
@@ -40,13 +47,6 @@ export default function DayEditorScreen() {
     inputBg: isDark ? '#1F1F23' : '#F4F4F5',
     danger: '#EF4444',
   };
-
-  useEffect(() => {
-    if (day) {
-      setName(day.name);
-      setDescription(day.description);
-    }
-  }, [day]);
 
   const handleSave = () => {
     if (dayIndex === null) return;

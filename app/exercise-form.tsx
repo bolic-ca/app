@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -81,22 +81,22 @@ export default function ExerciseFormScreen() {
 
   const availableSubcategories = muscleCategory && muscleSubcategories[muscleCategory] || [];
 
-  // Load existing exercise data in edit mode (wait for exercises to load first)
-  useEffect(() => {
-    if (isEditMode && params.exerciseId && !exercisesLoading && allExercises.length > 0) {
-      const existingExercise = allExercises.find(ex => ex.id === params.exerciseId);
-      if (existingExercise) {
-        setName(existingExercise.name || '');
-        setMuscleCategory(existingExercise.muscleCategory || '');
-        setMuscleSubcategory(existingExercise.muscleSubcategory || '');
-        setEquipment(existingExercise.equipment || '');
-        setTargetRepetitions(existingExercise.targetRepetitions || '');
-        setTargetRIR(existingExercise.targetRepetitionsInReserve || '');
-        setTargetPosition(existingExercise.targetPosition || '');
-        setNotes(existingExercise.notes || '');
-      }
-    }
-  }, [isEditMode, params.exerciseId, exercisesLoading, allExercises]);
+  // Fill the form once the exercise library has the record being edited.
+  const existingExercise = isEditMode && params.exerciseId && !exercisesLoading
+    ? allExercises.find(ex => ex.id === params.exerciseId)
+    : undefined;
+  const [loadedExerciseId, setLoadedExerciseId] = useState<string | null>(null);
+  if (existingExercise?.id && loadedExerciseId !== existingExercise.id) {
+    setLoadedExerciseId(existingExercise.id);
+    setName(existingExercise.name || '');
+    setMuscleCategory(existingExercise.muscleCategory || '');
+    setMuscleSubcategory(existingExercise.muscleSubcategory || '');
+    setEquipment(existingExercise.equipment || '');
+    setTargetRepetitions(existingExercise.targetRepetitions || '');
+    setTargetRIR(existingExercise.targetRepetitionsInReserve || '');
+    setTargetPosition(existingExercise.targetPosition || '');
+    setNotes(existingExercise.notes || '');
+  }
 
   const handleSubmit = async () => {
     // Validation
