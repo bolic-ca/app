@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -69,15 +69,15 @@ export default function SessionDetailModal() {
     return null;
   }, [params.session]);
 
-  // Initialize edited state
-  useEffect(() => {
-    if (session) {
-      setEditedName(session.name || '');
-      setEditedNotes(session.notes || '');
-      // Deep copy to ensure we don't mutate original state directly
-      setEditedExercises(JSON.parse(JSON.stringify(session.exercises)));
-    }
-  }, [session]);
+  // Copy session fields into editable state when a different session is opened.
+  const [initializedSessionId, setInitializedSessionId] = useState<string | null>(null);
+  if (session && initializedSessionId !== session.id) {
+    setInitializedSessionId(session.id);
+    setEditedName(session.name || '');
+    setEditedNotes(session.notes || '');
+    // Deep copy to ensure we don't mutate original state directly
+    setEditedExercises(JSON.parse(JSON.stringify(session.exercises)));
+  }
 
   const handleSetChange = (exerciseId: string, setIndex: number, field: keyof SessionSet, value: string) => {
     const updatedExercises = editedExercises.map(ex => {

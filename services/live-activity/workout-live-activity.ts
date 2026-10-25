@@ -5,7 +5,25 @@
  */
 
 import { Platform } from 'react-native';
-import * as LiveActivity from 'expo-live-activity';
+import type * as LiveActivityModule from 'expo-live-activity';
+
+type LiveActivityApi = typeof LiveActivityModule;
+
+// Loaded lazily: the native module isn't available in Expo Go, and a top-level
+// import would throw at app launch.
+let cachedModule: LiveActivityApi | null | undefined;
+
+function getLiveActivity(): LiveActivityApi | null {
+  if (cachedModule !== undefined) return cachedModule;
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    cachedModule = require('expo-live-activity') as LiveActivityApi;
+  } catch (err) {
+    warnOnce(err);
+    cachedModule = null;
+  }
+  return cachedModule;
+}
 
 /**
  * Domain-level state for the workout Live Activity.
@@ -42,7 +60,7 @@ function warnOnce(err: unknown): void {
   );
 }
 
-function toNativeState(state: WorkoutActivityState): LiveActivity.LiveActivityState {
+function toNativeState(state: WorkoutActivityState): LiveActivityModule.LiveActivityState {
   return {
     title: state.title,
     subtitle: state.subtitle,
@@ -70,10 +88,13 @@ export function startWorkoutActivity(
 ): string | undefined {
   if (!isSupported() || activityId) return activityId;
 
-  const nativeConfig: LiveActivity.LiveActivityConfig = {
+  const nativeConfig: LiveActivityModule.LiveActivityConfig = {
     deepLinkUrl: config?.deepLinkUrl,
     progressViewTint: config?.accentColor,
   };
+
+  const LiveActivity = getLiveActivity();
+  if (!LiveActivity) return undefined;
 
   try {
     activityId = LiveActivity.startActivity(toNativeState(state), nativeConfig) ?? undefined;
@@ -96,6 +117,9 @@ export function updateWorkoutActivity(state: WorkoutActivityState): void {
   const signature = signatureOf(state);
   if (signature === lastSignature) return;
 
+  const LiveActivity = getLiveActivity();
+  if (!LiveActivity) return;
+
   try {
     LiveActivity.updateActivity(activityId, toNativeState(state));
     lastSignature = signature;
@@ -111,8 +135,9 @@ export function stopWorkoutActivity(finalState?: WorkoutActivityState): void {
   if (!isSupported() || !activityId) return;
 
   const state = finalState ?? { title: 'Workout complete', subtitle: '' };
+  const LiveActivity = getLiveActivity();
   try {
-    LiveActivity.stopActivity(activityId, toNativeState(state));
+    LiveActivity?.stopActivity(activityId, toNativeState(state));
   } catch (err) {
     warnOnce(err);
   }

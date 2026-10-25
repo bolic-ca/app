@@ -3,7 +3,7 @@
  * Unified modal for adding and editing sets during a workout
  */
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -112,12 +112,25 @@ export default function SetEditor({
   const [rpeInput, setRpeInput] = useState('');
   const [quality, setQuality] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
-  const scrollViewRef = useRef<ScrollView>(null);
+  const scrollViewRef = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
-  // Reset form when modal opens/closes or initial data changes
-  useEffect(() => {
-    if (visible) {
-      // Convert weight from storage unit (kg) to display unit
+  // Reset the form whenever the modal opens or the seed values change.
+  const formKey = visible
+    ? [
+        preferences.weightUnit,
+        initialData?.weight ?? '',
+        initialData?.reps ?? '',
+        initialData?.rir ?? '',
+        initialData?.numberOfPartials ?? '',
+        initialData?.rpe ?? '',
+        initialData?.quality ?? '',
+        initialData?.notes ?? '',
+      ].join('|')
+    : null;
+  const [appliedFormKey, setAppliedFormKey] = useState<string | null>(null);
+  if (formKey !== appliedFormKey) {
+    setAppliedFormKey(formKey);
+    if (formKey !== null) {
       const displayWeightValue = initialData?.weight
         ? displayWeight(initialData.weight, preferences.weightUnit).toString()
         : '';
@@ -135,7 +148,7 @@ export default function SetEditor({
       setQuality(initialData?.quality ?? null);
       setNotes(initialData?.notes ?? '');
     }
-  }, [visible, initialData, preferences.weightUnit]);
+  }
 
   const handleSubmit = () => {
     const weightNum = parseFloat(weight);

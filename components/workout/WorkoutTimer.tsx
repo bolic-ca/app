@@ -11,32 +11,26 @@ interface WorkoutTimerProps {
   color?: string;
 }
 
+function calculateElapsed(startedAt: string): number {
+  const start = new Date(startedAt).getTime();
+  if (Number.isNaN(start)) return 0;
+  return Math.max(0, Math.floor((Date.now() - start) / 1000));
+}
+
 export default function WorkoutTimer({ startedAt, color = '#000' }: WorkoutTimerProps) {
-  const [elapsedTime, setElapsedTime] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState(() => calculateElapsed(startedAt));
+  const [trackedStart, setTrackedStart] = useState(startedAt);
+
+  if (startedAt !== trackedStart) {
+    setTrackedStart(startedAt);
+    setElapsedTime(calculateElapsed(startedAt));
+  }
 
   useEffect(() => {
-    // Calculate initial elapsed time
-    const calculateElapsed = () => {
-      try {
-        const start = new Date(startedAt).getTime();
-        if (isNaN(start)) {
-          return 0;
-        }
-        const now = Date.now();
-        return Math.floor((now - start) / 1000); // seconds
-      } catch {
-        return 0;
-      }
-    };
-
-    setElapsedTime(calculateElapsed());
-
-    // Update every second
     const interval = setInterval(() => {
-      setElapsedTime(calculateElapsed());
+      setElapsedTime(calculateElapsed(startedAt));
     }, 1000);
 
-    // Cleanup on unmount
     return () => clearInterval(interval);
   }, [startedAt]);
 

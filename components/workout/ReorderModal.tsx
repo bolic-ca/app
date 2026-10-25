@@ -59,8 +59,6 @@ interface DragItemProps {
   index: number;
   total: number;
   isDragged: boolean;
-  /** SharedValue anchored at the translationY where the last swap occurred. */
-  lastSwapTY: ReturnType<typeof useSharedValue<number>>;
   onDragStart: () => void;
   onSwap: (from: number, to: number) => void;
   onDragEnd: () => void;
@@ -72,36 +70,40 @@ const DragItem = React.memo(function DragItem({
   index,
   total,
   isDragged,
-  lastSwapTY,
   onDragStart,
   onSwap,
   onDragEnd,
   palette,
 }: DragItemProps) {
   const translateY = useSharedValue(0);
+  // Anchor for translationY at the last swap. Local to this row: only one row
+  // is dragged at a time, and onBegin resets it on the UI thread.
+  const lastSwapTY = useSharedValue(0);
 
-  // Keep a SharedValue mirror of `index` so worklets always see the latest value
-  // without needing a full re-render cycle.
+  // SharedValue mirrors so worklets see the latest slot without waiting on React.
+  // Updated during render: writing them inside an effect freezes the value for
+  // the React compiler and then flags the gesture mutations.
   const indexSV = useSharedValue(index);
-  useEffect(() => {
-    indexSV.value = index;
-  }, [index, indexSV]);
-
   const totalSV = useSharedValue(total);
-  useEffect(() => {
-    totalSV.value = total;
-  }, [total, totalSV]);
+  const [wasDragged, setWasDragged] = useState(isDragged);
 
-  // Reset translateY when this item is no longer the active dragged item
-  useEffect(() => {
+  if (indexSV.value !== index) {
+    indexSV.value = index;
+  }
+  if (totalSV.value !== total) {
+    totalSV.value = total;
+  }
+  if (isDragged !== wasDragged) {
+    setWasDragged(isDragged);
     if (!isDragged) {
       translateY.value = withSpring(0, { damping: 20, stiffness: 300 });
     }
-  }, [isDragged, translateY]);
+  }
 
   const pan = useMemo(() => Gesture.Pan()
     .onBegin(() => {
       translateY.value = 0;
+      lastSwapTY.value = 0;
       runOnJS(onDragStart)();
     })
     .onUpdate((e) => {
@@ -130,8 +132,8 @@ const DragItem = React.memo(function DragItem({
     }),
   // eslint-disable-next-line react-hooks/exhaustive-deps
   []);
-  // ^ Stable gesture object. Reanimated 4 updates worklet closures for props
-  //   that are SharedValues (lastSwapTY, indexSV, totalSV) automatically.
+  // ^ Stable gesture object. Reanimated 4 updates worklet closures for
+  //   SharedValues (lastSwapTY, indexSV, totalSV, translateY) automatically.
   //   JS callbacks (onDragStart, onSwap, onDragEnd) go through runOnJS which
   //   always uses the latest function reference at call time.
 
@@ -212,25 +214,24 @@ export default function ReorderModal({ visible, exercises, onClose, onSave }: Pr
 
   const [order, setOrder] = useState<SessionExercisePlan[]>(exercises);
   const orderRef = useRef(order);
-  orderRef.current = order;
+  useEffect(() => {
+    orderRef.current = order;
+  }, [order]);
 
   const [activeKey, setActiveKey] = useState<string | null>(null);
+  const [seen, setSeen] = useState({ visible, exercises });
 
-  // Shared anchor: translationY at the time of the last swap
-  const lastSwapTY = useSharedValue(0);
-
-  useEffect(() => {
+  if (visible !== seen.visible || (visible && exercises !== seen.exercises)) {
+    setSeen({ visible, exercises });
     if (visible) {
       setOrder(exercises);
       setActiveKey(null);
-      lastSwapTY.value = 0;
     }
-  }, [visible, exercises, lastSwapTY]);
+  }
 
   const handleDragStart = useCallback((key: string) => {
-    lastSwapTY.value = 0;
     setActiveKey(key);
-  }, [lastSwapTY]);
+  }, []);
 
   const handleSwap = useCallback((from: number, to: number) => {
     LayoutAnimation.configureNext({
@@ -240,13 +241,13 @@ export default function ReorderModal({ visible, exercises, onClose, onSave }: Pr
     const newOrder = [...orderRef.current];
     const [moved] = newOrder.splice(from, 1);
     newOrder.splice(to, 0, moved);
+    orderRef.current = newOrder;
     setOrder(newOrder);
   }, []);
 
   const handleDragEnd = useCallback(() => {
     setActiveKey(null);
-    lastSwapTY.value = 0;
-  }, [lastSwapTY]);
+  }, []);
 
   const handleSave = () => {
     setActiveKey(null);
@@ -305,7 +306,6 @@ export default function ReorderModal({ visible, exercises, onClose, onSave }: Pr
               index={index}
               total={order.length}
               isDragged={activeKey === item.exerciseId}
-              lastSwapTY={lastSwapTY}
               onDragStart={() => handleDragStart(item.exerciseId)}
               onSwap={handleSwap}
               onDragEnd={handleDragEnd}

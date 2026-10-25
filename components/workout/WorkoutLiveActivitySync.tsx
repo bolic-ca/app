@@ -55,56 +55,61 @@ export default function WorkoutLiveActivitySync() {
   const { session, sessionHistory } = useWorkoutSession();
   const { preferences, customColors } = useThemeCustomization();
 
-  const [trainingDay, setTrainingDay] = useState<TrainingDay | null>(null);
+  const programId = session?.programId ?? null;
+  const trainingDayId = session?.trainingDayId ?? null;
+  const requestKey = isInitialized && userId && programId && trainingDayId
+    ? `${userId}:${programId}:${trainingDayId}`
+    : null;
+  const [loadedDay, setLoadedDay] = useState<{ key: string; day: TrainingDay | null } | null>(null);
+  const trainingDay = loadedDay && loadedDay.key === requestKey ? loadedDay.day : null;
 
   // Load the training day for the active session from its program.
   useEffect(() => {
+    if (!requestKey || !userId || !programId || !trainingDayId) return;
+
     let cancelled = false;
-    const programId = session?.programId;
-    const trainingDayId = session?.trainingDayId;
-
-    if (!isInitialized || !userId || !programId || !trainingDayId) {
-      setTrainingDay(null);
-      return;
-    }
-
     programStorage
       .getById(userId, programId)
       .then(item => {
         if (!cancelled) {
-          setTrainingDay(findTrainingDayInProgram(item?.data, trainingDayId));
+          setLoadedDay({
+            key: requestKey,
+            day: findTrainingDayInProgram(item?.data, trainingDayId),
+          });
         }
       })
       .catch(() => {
-        if (!cancelled) setTrainingDay(null);
+        if (!cancelled) setLoadedDay({ key: requestKey, day: null });
       });
 
     return () => {
       cancelled = true;
     };
-  }, [userId, isInitialized, session?.programId, session?.trainingDayId]);
+  }, [requestKey, userId, programId, trainingDayId]);
 
   // Keep a ref to the latest sync routine so the interval always runs fresh data.
   const syncRef = useRef<() => void>(() => {});
-  syncRef.current = () => {
-    if (!session) return;
+  useEffect(() => {
+    syncRef.current = () => {
+      if (!session) return;
 
-    const state = buildWorkoutActivityState(session, trainingDay, sessionHistory, {
-      weightUnit: preferences.weightUnit,
-      showRir: preferences.showRir,
-      showRpe: preferences.showRpe,
-    });
-    if (!state) return;
-
-    if (hasWorkoutActivity()) {
-      updateWorkoutActivity(state);
-    } else {
-      startWorkoutActivity(state, {
-        accentColor: customColors.primaryButton,
-        deepLinkUrl: '/',
+      const state = buildWorkoutActivityState(session, trainingDay, sessionHistory, {
+        weightUnit: preferences.weightUnit,
+        showRir: preferences.showRir,
+        showRpe: preferences.showRpe,
       });
-    }
-  };
+      if (!state) return;
+
+      if (hasWorkoutActivity()) {
+        updateWorkoutActivity(state);
+      } else {
+        startWorkoutActivity(state, {
+          accentColor: customColors.primaryButton,
+          deepLinkUrl: '/',
+        });
+      }
+    };
+  });
 
   // Start / update on any session, history, training day, or preference change.
   useEffect(() => {
