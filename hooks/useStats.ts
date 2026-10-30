@@ -7,6 +7,7 @@ import { useState, useEffect } from 'react';
 import { useStorage } from '@/contexts/StorageContext';
 import { UserStats, getStats, updateStats } from '@/services/storage/stats-storage';
 import { personalRecordsStorage, PersonalRecord } from '@/services/storage/personal-records-storage';
+import { nextWorkoutStreak } from '@/utils/streak';
 
 export function useStats() {
   const { userId, isInitialized } = useStorage();
@@ -42,46 +43,23 @@ export function useStats() {
   }, [userId, isInitialized]);
 
   async function incrementWorkouts(durationSeconds = 0): Promise<void> {
-    if (!stats) return;
+    if (!userId) {
+      throw new Error('Storage is not ready');
+    }
 
     try {
-      // Get today's date (without time)
-      const today = new Date().toISOString().split('T')[0];
-      const lastWorkout = stats.lastWorkoutDate
-        ? new Date(stats.lastWorkoutDate).toISOString().split('T')[0]
-        : null;
-
-      // Calculate new streak
-      let newStreak = stats.currentStreak;
-      if (lastWorkout) {
-        const lastDate = new Date(lastWorkout).getTime();
-        const todayDate = new Date(today).getTime();
-        const daysDiff = Math.floor((todayDate - lastDate) / (1000 * 60 * 60 * 24));
-
-        if (daysDiff === 0) {
-          // Same day - keep current streak
-          newStreak = stats.currentStreak;
-        } else if (daysDiff === 1) {
-          // Next day - increment streak
-          newStreak = stats.currentStreak + 1;
-        } else {
-          // Streak broken - reset to 1
-          newStreak = 1;
-        }
-      } else {
-        // First workout ever
-        newStreak = 1;
-      }
-
+      const base = stats ?? (await getStats(userId));
+      const now = new Date();
+      const newStreak = nextWorkoutStreak(base.currentStreak, base.lastWorkoutDate, now);
       const durationHours = durationSeconds > 0 ? durationSeconds / 3600 : 0;
 
       const updatedStats: UserStats = {
-        ...stats,
-        totalWorkouts: stats.totalWorkouts + 1,
+        ...base,
+        totalWorkouts: base.totalWorkouts + 1,
         currentStreak: newStreak,
-        longestStreak: Math.max(stats.longestStreak, newStreak),
-        activeTime: Math.round((stats.activeTime + durationHours) * 10) / 10,
-        lastWorkoutDate: new Date().toISOString(),
+        longestStreak: Math.max(base.longestStreak, newStreak),
+        activeTime: Math.round((base.activeTime + durationHours) * 10) / 10,
+        lastWorkoutDate: now.toISOString(),
       };
 
       await updateStats(userId, updatedStats);
