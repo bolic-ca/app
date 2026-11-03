@@ -190,7 +190,10 @@ export default function PreviewScreen() {
         <TouchableOpacity
           style={[
             styles.submitButton,
-            { shadowColor: palette.accent },
+            {
+              backgroundColor: canSave() ? palette.success : palette.cardBorder,
+              shadowColor: palette.success,
+            },
             !canSave() && styles.submitButtonDisabled,
           ]}
           onPress={handleSave}

@@ -116,7 +116,10 @@ export default function ExercisesPage() {
 
         {/* Add Exercise Button */}
         <TouchableOpacity
-          style={[styles.addButton, { shadowColor: palette.accent }]}
+          style={[
+            styles.addButton,
+            { backgroundColor: palette.accent, shadowColor: palette.accent },
+          ]}
           onPress={() => router.push('/exercise-form')}
           activeOpacity={0.9}
         >

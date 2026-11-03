@@ -145,7 +145,10 @@ export default function TrainingDaysScreen() {
         <TouchableOpacity
           style={[
             styles.submitButton,
-            { shadowColor: palette.accent },
+            {
+              backgroundColor: hasTrainingDays ? palette.accent : palette.cardBorder,
+              shadowColor: palette.accent,
+            },
             !hasTrainingDays && styles.submitButtonDisabled,
           ]}
           onPress={handleNext}

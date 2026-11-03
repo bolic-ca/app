@@ -435,7 +435,10 @@ export default function HomePage() {
 
           {/* Primary Action Button */}
           <TouchableOpacity
-            style={[styles.primaryAction, { shadowColor: palette.accent }]}
+            style={[
+              styles.primaryAction,
+              { backgroundColor: palette.accent, shadowColor: palette.accent },
+            ]}
             onPress={handleWorkoutButtonPress}
             activeOpacity={0.9}
           >
