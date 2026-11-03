@@ -235,6 +235,7 @@ export default function SetEditor({
               <Text style={[styles.modalTitle, { color: theme.text, fontSize: s(22) }]}>{title}</Text>
               <TouchableOpacity
                 onPress={onClose}
+                accessibilityLabel="Close set editor"
                 hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
               >
                 <Ionicons name="close" size={s(28)} color={theme.textSecondary} />
@@ -254,6 +255,7 @@ export default function SetEditor({
                       { backgroundColor: theme.card, color: theme.text, borderColor: theme.cardBorder, fontSize: s(20), padding: s(16) },
                     ]}
                     value={weight}
+                    accessibilityLabel="Weight"
                     onChangeText={setWeight}
                     keyboardType="decimal-pad"
                     placeholder="0"
@@ -271,6 +273,7 @@ export default function SetEditor({
                       { backgroundColor: theme.card, color: theme.text, borderColor: theme.cardBorder, fontSize: s(20), padding: s(16) },
                     ]}
                     value={reps}
+                    accessibilityLabel="Reps"
                     onChangeText={setReps}
                     keyboardType="number-pad"
                     placeholder="0"
@@ -535,6 +538,7 @@ export default function SetEditor({
                 <TouchableOpacity
                   style={[styles.deleteButton, { borderColor: '#ff6b6b', width: s(52), height: s(52) }]}
                   onPress={handleDelete}
+                  accessibilityLabel="Delete set"
                 >
                   <Ionicons name="trash-outline" size={s(20)} color="#ff6b6b" />
                 </TouchableOpacity>

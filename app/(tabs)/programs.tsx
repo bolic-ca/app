@@ -139,6 +139,8 @@ export default function ProgramsPage() {
               <TouchableOpacity
                 onPress={(e) => { e.stopPropagation(); handleSetActiveProgram(program); }}
                 style={[styles.actionButton, { backgroundColor: palette.accentGlow }]}
+                accessibilityRole="button"
+                accessibilityLabel={`Set ${program.name} active`}
               >
                 <Ionicons name="play" size={18} color={palette.accent} />
               </TouchableOpacity>
@@ -271,7 +273,11 @@ export default function ProgramsPage() {
 
         {loading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={palette.accent} />
+            <ActivityIndicator
+              size="large"
+              color={palette.accent}
+              accessibilityLabel="Loading programs"
+            />
           </View>
         )}
 
