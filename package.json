@@ -3,10 +3,10 @@
   "main": "expo-router/entry",
   "version": "1.0.0",
   "scripts": {
-    "start": "APP_VARIANT=development expo start --tunnel --dev-client",
+    "start": "cross-env APP_VARIANT=development expo start --tunnel --dev-client",
     "reset-project": "node ./scripts/reset-project.js",
-    "android": "expo run:android",
-    "ios": "expo run:ios",
+    "android": "cross-env APP_VARIANT=development expo run:android",
+    "ios": "cross-env APP_VARIANT=development expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit"
@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@types/react": "~19.3.0",
+    "cross-env": "^10.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~58.0.4",
     "typescript": "~6.0.3"
