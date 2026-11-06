@@ -68,6 +68,7 @@ export default function WorkoutHeader({
             <TouchableOpacity
               style={styles.actionButton}
               onPress={onMinimize}
+              accessibilityLabel="Minimize workout"
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <Ionicons name="chevron-down" size={22} color={theme.textSecondary} />
@@ -76,6 +77,7 @@ export default function WorkoutHeader({
           <TouchableOpacity
             style={styles.actionButton}
             onPress={onCancel}
+            accessibilityLabel="Cancel workout"
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Ionicons name="close" size={22} color={theme.textSecondary} />

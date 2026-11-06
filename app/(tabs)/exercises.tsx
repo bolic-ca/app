@@ -116,7 +116,10 @@ export default function ExercisesPage() {
 
         {/* Add Exercise Button */}
         <TouchableOpacity
-          style={[styles.addButton, { shadowColor: palette.accent }]}
+          style={[
+            styles.addButton,
+            { backgroundColor: palette.accent, shadowColor: palette.accent },
+          ]}
           onPress={() => router.push('/exercise-form')}
           activeOpacity={0.9}
         >
@@ -136,7 +139,11 @@ export default function ExercisesPage() {
 
         {exercisesLoading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={palette.accent} />
+            <ActivityIndicator
+              size="large"
+              color={palette.accent}
+              accessibilityLabel="Loading exercises"
+            />
           </View>
         ) : exercises.length === 0 ? (
           <View style={[styles.emptyCard, { backgroundColor: palette.cardBg, borderColor: palette.cardBorder }]}>
@@ -304,6 +311,8 @@ export default function ExercisesPage() {
                       <TouchableOpacity
                         style={[styles.actionButton, { backgroundColor: isDark ? '#1F1F23' : '#F4F4F5' }]}
                         onPress={() => router.push({ pathname: '/exercise-form', params: { exerciseId: exercise.id } })}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Edit ${exercise.name}`}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       >
                         <Ionicons name="pencil" size={16} color={palette.accent} />
@@ -314,6 +323,8 @@ export default function ExercisesPage() {
                           e.stopPropagation();
                           handleDelete(exercise.id!, exercise.name || 'this exercise');
                         }}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Delete ${exercise.name}`}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
                       >
                         <Ionicons name="trash-outline" size={16} color="#ef4444" />

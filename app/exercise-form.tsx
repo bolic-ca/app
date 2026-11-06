@@ -455,7 +455,10 @@ export default function ExerciseFormScreen() {
 
         {/* Submit Button */}
         <TouchableOpacity
-          style={[styles.submitButton, { shadowColor: palette.accent }]}
+          style={[
+            styles.submitButton,
+            { backgroundColor: palette.accent, shadowColor: palette.accent },
+          ]}
           onPress={handleSubmit}
           disabled={loading}
           activeOpacity={0.9}

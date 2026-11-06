@@ -81,7 +81,11 @@ export default function SelectTrainingDayScreen() {
 
       {loading ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color={palette.accent} />
+          <ActivityIndicator
+            accessibilityLabel="Loading training days"
+            size="large"
+            color={palette.accent}
+          />
         </View>
       ) : (
         <ScrollView style={styles.content} contentContainerStyle={styles.contentContainer}>

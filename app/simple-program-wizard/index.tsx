@@ -210,7 +210,10 @@ export default function SimpleProgramWizardIndex() {
         <TouchableOpacity
           style={[
             styles.submitButton,
-            { shadowColor: palette.accent },
+            {
+              backgroundColor: canProceedFromStep1() ? palette.accent : palette.cardBorder,
+              shadowColor: palette.accent,
+            },
             !canProceedFromStep1() && styles.submitButtonDisabled,
           ]}
           onPress={handleNext}

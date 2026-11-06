@@ -175,7 +175,11 @@ export default function HistoryPage() {
       
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: palette.cardBorder }]}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity
+          accessibilityLabel="Go back"
+          onPress={() => router.back()}
+          style={styles.backButton}
+        >
           <Ionicons name="arrow-back" size={24} color={palette.text} />
         </TouchableOpacity>
         <Text style={[styles.headerTitle, { color: palette.text }]}>Workout History</Text>
@@ -184,11 +188,19 @@ export default function HistoryPage() {
 
       {/* Month Navigator */}
       <View style={[styles.monthNav, { backgroundColor: palette.cardBg, borderColor: palette.cardBorder }]}>
-        <TouchableOpacity onPress={handlePrevMonth} style={styles.navButton}>
+        <TouchableOpacity
+          accessibilityLabel="Previous month"
+          onPress={handlePrevMonth}
+          style={styles.navButton}
+        >
           <Ionicons name="chevron-back" size={24} color={palette.text} />
         </TouchableOpacity>
         <Text style={[styles.monthTitle, { color: palette.text }]}>{formatMonth(currentDate)}</Text>
-        <TouchableOpacity onPress={handleNextMonth} style={styles.navButton}>
+        <TouchableOpacity
+          accessibilityLabel="Next month"
+          onPress={handleNextMonth}
+          style={styles.navButton}
+        >
           <Ionicons name="chevron-forward" size={24} color={palette.text} />
         </TouchableOpacity>
       </View>
@@ -200,7 +212,11 @@ export default function HistoryPage() {
       >
         {loading ? (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={palette.accent} />
+            <ActivityIndicator
+              accessibilityLabel="Loading workout history"
+              size="large"
+              color={palette.accent}
+            />
           </View>
         ) : sessions.length > 0 ? (
           <View style={styles.listContainer}>

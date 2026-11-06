@@ -84,7 +84,10 @@ export default function OnboardingScreen() {
       {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity
-          style={[styles.button, { shadowColor: palette.accent }]}
+          style={[
+            styles.button,
+            { backgroundColor: palette.accent, shadowColor: palette.accent },
+          ]}
           onPress={handleGetStarted}
           activeOpacity={0.9}
         >

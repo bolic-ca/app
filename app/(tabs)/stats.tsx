@@ -114,7 +114,11 @@ export default function StatsPage() {
 
         {loading && (
           <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={palette.accent} />
+            <ActivityIndicator
+              accessibilityLabel="Loading stats"
+              size="large"
+              color={palette.accent}
+            />
           </View>
         )}
 
@@ -153,6 +157,7 @@ export default function StatsPage() {
                   <View key={index} style={styles.dayContainer}>
                     <Text style={[styles.dayLabel, { color: palette.textMuted }]}>{item.day}</Text>
                     <View
+                      accessibilityLabel={`Activity day ${index + 1} (${item.day}): ${item.completed ? 'workout completed' : 'no workout'}`}
                       style={[
                         styles.dayCircle,
                         {
